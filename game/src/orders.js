@@ -1,19 +1,34 @@
-// DAPUR KILAT — orders.js
+// LANTERN NOODLE — orders.js
 // One job: the order board — which tickets are up, how long each customer waits,
 // and what serving a dish earns. It knows nothing about drawing or input.
 
-import { DISHES, DISH_BY_ID, MAX_ORDERS, patienceFor, spawnEveryFor, tipFor } from './config.js';
 
 let nextId = 1;
+
+// Every ticket's customer: varied skin, hair and shirt, so the faces waiting at
+// the stall never look like the same person twice.
+const CUSTOMER_SKINS = ['#f2c79b', '#e8b48a', '#c98d5f', '#8a5a3b'];
+const CUSTOMER_HAIRS = ['#2b1c10', '#3a2c1a', '#6b4423', '#8a8a8a'];
+const CUSTOMER_SHIRTS = ['#d9392b', '#2f8f3e', '#2b6cb0', '#f7c948'];
+function customerByIndex(i) {
+  return {
+    skin: CUSTOMER_SKINS[i % CUSTOMER_SKINS.length],
+    hair: CUSTOMER_HAIRS[i % CUSTOMER_HAIRS.length],
+    shirt: CUSTOMER_SHIRTS[i % CUSTOMER_SHIRTS.length],
+    hairStyle: i % 3, // 0 short, 1 bun, 2 long
+  };
+}
 
 /** A fresh ticket: a random dish, full patience, born at `elapsed` seconds in. */
 function makeOrder(elapsed, rng) {
   const dish = DISHES[Math.floor(rng() * DISHES.length)];
   const patience = patienceFor(elapsed);
-  return { id: nextId, dishId: dish.id, patience, patienceMax: patience, born: elapsed };
+  const id = nextId;
+  nextId += 1;
+  return { id, dishId: dish.id, patience, patienceMax: patience, born: elapsed, customer: customerByIndex(id) };
 }
 
-export function createOrderBoard(rng) {
+function createOrderBoard(rng) {
   return {
     rng,
     orders: [],
@@ -24,7 +39,7 @@ export function createOrderBoard(rng) {
 }
 
 /** Start a day with two tickets already on the board. */
-export function resetBoard(board, elapsed) {
+function resetBoard(board, elapsed) {
   board.orders = [makeOrder(elapsed, board.rng), makeOrder(elapsed, board.rng)];
   board.spawnIn = spawnEveryFor(elapsed);
   board.served = 0;
@@ -35,7 +50,7 @@ export function resetBoard(board, elapsed) {
  * Advance the board by `dt` seconds. Returns the tickets that expired this step
  * (their customers walked out) so the kitchen can react.
  */
-export function tickBoard(board, dt, elapsed) {
+function tickBoard(board, dt, elapsed) {
   const expired = [];
   for (const order of board.orders) {
     order.patience -= dt;
@@ -57,7 +72,7 @@ export function tickBoard(board, dt, elapsed) {
 }
 
 /** The oldest ticket waiting for `dishId`, or null. */
-export function findOrderFor(board, dishId) {
+function findOrderFor(board, dishId) {
   return board.orders.find((o) => o.dishId === dishId) ?? null;
 }
 
@@ -65,7 +80,7 @@ export function findOrderFor(board, dishId) {
  * Serve `dishId`: remove the oldest matching ticket and pay price + tip for the
  * patience left. Returns the payment, or null when no ticket wants the dish.
  */
-export function serveOrder(board, dishId) {
+function serveOrder(board, dishId) {
   const order = findOrderFor(board, dishId);
   if (!order) return null;
   board.orders = board.orders.filter((o) => o.id !== order.id);

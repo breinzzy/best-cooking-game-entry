@@ -1,4 +1,4 @@
-// DAPUR KILAT — icons.js
+// LANTERN NOODLE — icons.js
 // One job: draw every food icon as vector shapes on the canvas. No emoji and no
 // image files (the machine has no colour-emoji font), so the art is the game's own
 // and reads the same in every browser. Each icon is drawn centred on (x, y) inside
@@ -30,13 +30,14 @@ function bowl(ctx, x, y, s, color) {
 }
 
 const ICONS = {
-  // Steamed rice: white mound in a blue bowl, spring-onion sprinkle.
-  nasi(ctx, x, y, s) {
-    bowl(ctx, x, y, s, '#3d6fb4');
-    ellipse(ctx, x, y - s * 0.08, s * 0.34, s * 0.26, '#fff8e7');
-    circle(ctx, x - s * 0.12, y - s * 0.2, s * 0.045, '#58b368');
-    circle(ctx, x + s * 0.1, y - s * 0.16, s * 0.045, '#58b368');
-    circle(ctx, x + s * 0.02, y - s * 0.26, s * 0.04, '#8fce62');
+  // Broth: amber soup in a teal bowl, with bubbles on top.
+  kuah(ctx, x, y, s) {
+    bowl(ctx, x, y, s, '#1f6f6b');
+    ellipse(ctx, x, y - s * 0.1, s * 0.34, s * 0.2, '#e8912d');
+    ellipse(ctx, x, y - s * 0.13, s * 0.26, s * 0.13, '#f7b500');
+    circle(ctx, x - s * 0.12, y - s * 0.16, s * 0.045, '#fff3c4');
+    circle(ctx, x + s * 0.1, y - s * 0.08, s * 0.04, '#fff3c4');
+    circle(ctx, x + s * 0.02, y - s * 0.2, s * 0.035, '#ffe9a8');
   },
   // Noodles: yellow wavy strands in a red bowl.
   mie(ctx, x, y, s) {
@@ -136,15 +137,15 @@ const ICONS = {
     ctx.fillStyle = '#f5ead2';
     ctx.fillRect(x - s * 0.14, y - s * 0.08, s * 0.28, s * 0.26);
     ctx.fillStyle = '#3a1f0e';
-    ctx.font = `bold ${Math.round(s * 0.16)}px sans-serif`;
+    ctx.font = `bold ${Math.round(s * 0.14)}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('KECAP', x, y + s * 0.05);
+    ctx.fillText('SOY', x, y + s * 0.05);
   },
 };
 
 /** Draw the icon named `name` centred on (x, y) at size `s`. Unknown names draw a dot. */
-export function drawIcon(ctx, name, x, y, s) {
+function drawIcon(ctx, name, x, y, s) {
   const draw = ICONS[name];
   if (!draw) {
     circle(ctx, x, y, s * 0.2, '#999');
@@ -156,7 +157,7 @@ export function drawIcon(ctx, name, x, y, s) {
 }
 
 /** The dish on a plate: a mound in the dish colour with its ingredient icons on top. */
-export function drawDish(ctx, dish, x, y, s) {
+function drawDish(ctx, dish, x, y, s) {
   ellipse(ctx, x, y + s * 0.28, s * 0.46, s * 0.14, dish.color);
   ellipse(ctx, x, y + s * 0.12, s * 0.38, s * 0.2, dish.color);
   const n = dish.needs.length;
@@ -164,4 +165,22 @@ export function drawDish(ctx, dish, x, y, s) {
     const dx = (i - (n - 1) / 2) * s * 0.3;
     drawIcon(ctx, id, x + dx, y - s * 0.06, s * 0.34);
   });
+}
+
+/** The serve bell on the pass shelf: a gold dome on a base, rung to serve. */
+function drawBell(ctx, x, y, s, lit = true) {
+  ctx.fillStyle = lit ? '#f7c948' : '#8a7a5f';
+  ctx.beginPath();
+  ctx.arc(x, y, s * 0.42, Math.PI, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillRect(x - s * 0.5, y - s * 0.06, s, s * 0.12);
+  ctx.fillStyle = lit ? '#d99a1f' : '#6b5f4a';
+  ctx.beginPath();
+  ctx.arc(x, y - s * 0.5, s * 0.09, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.beginPath();
+  ctx.ellipse(x - s * 0.18, y - s * 0.22, s * 0.08, s * 0.14, -0.4, 0, Math.PI * 2);
+  ctx.fill();
 }

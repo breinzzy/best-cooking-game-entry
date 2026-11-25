@@ -1,15 +1,8 @@
-// DAPUR KILAT — main.js
+// LANTERN NOODLE — main.js
 // One job: run the game — the animation loop, the screen state, the best score,
 // and the wiring between input, kitchen and render. Screenshot mode (?shot=)
 // stages a fixed scene and freezes it: no ticking, no title screen.
 
-import { VIEW } from './config.js';
-import { createKitchen, startDay, addIngredient, stirWok, pourToPlate, servePlate, trashWok, trashPlate, tickKitchen, SCREEN_TITLE, SCREEN_OVER } from './kitchen.js';
-import { drawGame } from './render.js';
-import { createInput } from './input.js';
-import { mulberry32, seedFromLocation } from './random.js';
-import { stageShot } from './shots.js';
-import { sfx, setMuted, isMuted, unlockAudio, stopSizzle } from './audio.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -22,7 +15,7 @@ const kitchen = createKitchen(rng);
 
 let best = 0;
 try {
-  best = Number(localStorage.getItem('dapur-kilat-best') ?? 0) || 0;
+  best = Number(localStorage.getItem('lantern-noodle-best') ?? 0) || 0;
 } catch { /* private mode: no best score */ }
 
 let paused = false;
@@ -32,7 +25,7 @@ function saveBest() {
   if (kitchen.coins > best) {
     best = kitchen.coins;
     try {
-      localStorage.setItem('dapur-kilat-best', String(best));
+      localStorage.setItem('lantern-noodle-best', String(best));
     } catch { /* ignore */ }
   }
 }
@@ -40,8 +33,8 @@ function saveBest() {
 function announce() {
   if (!statusEl) return;
   statusEl.textContent = kitchen.screen === SCREEN_TITLE
-    ? 'Dapur Kilat: tekan untuk mulai memasak.'
-    : `Koin ${kitchen.coins}, kombo x${kitchen.combo}, waktu ${Math.ceil(kitchen.timeLeft)} detik, ${kitchen.board.orders.length} pesanan.`;
+    ? 'Lantern Noodle: click to start cooking.'
+    : `Coins ${kitchen.coins}, combo x${kitchen.combo}, ${Math.ceil(kitchen.timeLeft)} seconds left, ${kitchen.board.orders.length} orders.`;
 }
 
 const actions = {
@@ -54,25 +47,25 @@ const actions = {
   stir() {
     unlockAudio();
     if (kitchen.screen !== 'play') return;
-    stirWok(kitchen);
+    stirBowl(kitchen);
   },
   pour() {
     unlockAudio();
     if (kitchen.screen !== 'play') return;
-    if (pourToPlate(kitchen)) announce();
+    if (pourToPass(kitchen)) announce();
   },
   serve() {
     unlockAudio();
     if (kitchen.screen !== 'play') return;
-    if (servePlate(kitchen)) announce();
+    if (servePass(kitchen)) announce();
   },
-  trashWok() {
+  trashBowl() {
     if (kitchen.screen !== 'play') return;
-    trashWok(kitchen);
+    trashBowl(kitchen);
   },
-  trashPlate() {
+  trashPass() {
     if (kitchen.screen !== 'play') return;
-    trashPlate(kitchen);
+    trashPass(kitchen);
   },
   toggleMute() {
     setMuted(!isMuted());
@@ -104,8 +97,8 @@ const actions = {
     if (kitchen.screen === SCREEN_TITLE) actions.start();
     else if (kitchen.screen === SCREEN_OVER) actions.restart();
     else if (kitchen.screen === 'play') {
-      if (kitchen.dishReady && !kitchen.plate) pourToPlate(kitchen);
-      else if (kitchen.plate) servePlate(kitchen);
+      if (kitchen.dishReady && !kitchen.pass) pourToPass(kitchen);
+      else if (kitchen.pass) servePass(kitchen);
       announce();
     }
   },
