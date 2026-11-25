@@ -1,13 +1,13 @@
-// DAPUR KILAT — main.ts
+// LANTERN NOODLE — main.ts
 // The entry program (Node 22, standard library only): the game is this directory's
 // game/ folder, plain static files a desktop browser loads offline (game/index.html
-// and its ES modules, no library and no network request), and the program hands it
+// and its plain scripts, no library and no network request), and the program hands it
 // in. It copies game/ and screenshots/ from beside this file to /output and writes
 // /output/dossier.json, the summary the judge reads, with the vendored make.fun
-// library. The game itself: a warung cooking game — read the order board, drop
-// ingredients into the wok, stir until cooked, pour onto the plate and serve
-// before the customers walk out. Keyboard (1-7, Space, Enter, Del, P, M) and
-// mouse; sounds are synthesised in the browser, no audio files.
+// library. The game itself: a night-market noodle stall — read the order board,
+// layer ingredients into the bowl, stir until simmered, move it to the pass shelf
+// and ring the bell before the customers walk out. Keyboard (1-7, Space, Enter,
+// Del, P, M) and mouse; sounds are synthesised in the browser, no audio files.
 //
 // Serve it locally with `node serve.ts`, then open http://localhost:8080.
 // Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
@@ -26,9 +26,10 @@ cpSync(join(here, 'game'), join(out, 'game'), { recursive: true });
 mkdirSync(join(out, 'screenshots'), { recursive: true });
 // Screenshots (screenshots/, first by name is the cover — the judge's contact
 // sheet shows it large on top): 1-cover.png the whole game at a glance
-// (order board, counter, wok mid-assembly, timer, plate ready to serve),
-// 2-rush.png the service rush, 3-serve.png the moment a dish is served,
-// 4-end.png the end-of-day panel. All four are real renders of game/src/shots.js
+// (order board, counter, bowl mid-assembly, timer, pass shelf ready to serve),
+// 2-rush.png the service rush, 3-gameplay.png a different moment early in the
+// shift (early bowl, fresh tickets, different customers),
+// 4-end.png the end-of-shift panel. All four are real renders of game/src/shots.js
 // staged scenes, taken in desktop Chrome.
 if (existsSync(join(here, 'screenshots'))) cpSync(join(here, 'screenshots'), join(out, 'screenshots'), { recursive: true });
 
